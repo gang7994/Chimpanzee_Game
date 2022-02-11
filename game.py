@@ -17,6 +17,7 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 
 running = True
+
 while(running):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -24,4 +25,5 @@ while(running):
     screen.fill(BLACK)
     display_start_screen()
     pygame.display.update()
+    
 pygame.quit()
