@@ -1,8 +1,10 @@
 from random import *
-from tkinter.messagebox import NO
 import pygame
 
 def setup(level):
+    global display_time
+    display_time = 5
+    
     view_count = (level//3) + 5
     view_count = min(view_count, 30)
     shuffle_grid(view_count)
@@ -37,17 +39,40 @@ def display_start_screen():
     pygame.draw.circle(screen, WHITE, start_button.center,60, 5)
 
 def check_buttons(pos):
-    global start
-    if start_button.collidepoint(pos):
+    global start,start_ticks
+    
+    if start:
+        check_number_button(pos)
+    elif start_button.collidepoint(pos):
         start = True
+        start_ticks = pygame.time.get_ticks()
 
-def display_game_screen():
-    for idx, rect in enumerate(number_button_list, start=1):
-        pygame.draw.rect(screen, GRAY, rect)
+def check_number_button(pos):
+    global hide
+    for button in number_button_list:
+        if button.collidepoint(pos):
+            if button == number_button_list[0]:
+                del number_button_list[0]
+                if not hide:
+                    hide = True
+            else:
+                pass
+            break
         
-        text = game_font.render(str(idx), True, WHITE)
-        text_rect = text.get_rect(center=rect.center)
-        screen.blit(text,text_rect)
+def display_game_screen():
+    global hide
+    if not hide:
+        elapsed_time = (pygame.time.get_ticks() - start_ticks) /1000
+        if elapsed_time > display_time:
+            hide = True
+    
+    for idx, rect in enumerate(number_button_list, start=1):
+        if hide:
+            pygame.draw.rect(screen, WHITE, rect)
+        else:
+            text = game_font.render(str(idx), True, WHITE)
+            text_rect = text.get_rect(center=rect.center)
+            screen.blit(text,text_rect)
 
 pygame.init()
 screen_width = 1200
@@ -65,7 +90,11 @@ GRAY = (50, 50, 50)
 
 number_button_list = []
 
+display_time = None
+start_ticks = None
+
 start = False
+hide = False
 
 setup(1)
 
