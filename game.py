@@ -1,4 +1,5 @@
 from random import *
+from tkinter import CENTER
 import pygame
 
 def setup(level):
@@ -9,7 +10,6 @@ def setup(level):
     view_count = min(view_count, 30)
     shuffle_grid(view_count)
     
-
 def shuffle_grid(count):
     rows = 5
     columns = 9
@@ -37,7 +37,14 @@ def shuffle_grid(count):
 
 def display_start_screen():
     pygame.draw.circle(screen, WHITE, start_button.center,60, 5)
-
+    button_msg = start_font.render("START", 1, WHITE) 
+    b_msg_rect = button_msg.get_rect(center=(120,screen_height-120))
+    screen.blit(button_msg, b_msg_rect)
+    
+    now_msg = game_font.render(f"Level : {level}", True, WHITE) 
+    msg_rect = now_msg.get_rect(center=(screen_width/2, screen_height/2))
+    screen.blit(now_msg, msg_rect)
+     
 def check_buttons(pos):
     global start,start_ticks
     
@@ -48,7 +55,7 @@ def check_buttons(pos):
         start_ticks = pygame.time.get_ticks()
 
 def check_number_button(pos):
-    global hide
+    global hide,start, level
     for button in number_button_list:
         if button.collidepoint(pos):
             if button == number_button_list[0]:
@@ -56,9 +63,24 @@ def check_number_button(pos):
                 if not hide:
                     hide = True
             else:
-                pass
+                game_over()
             break
+    if len(number_button_list) == 0:
+        start = False
+        hide = False
+        level += 1
+        setup(level)
         
+def game_over():
+    global running,level
+    running = False
+    
+    msg = game_font.render(f"Your Level is {level}", True, WHITE) 
+    msg_rect = msg.get_rect(center=(screen_width/2, screen_height/2))
+    
+    screen.fill(BLACK)
+    screen.blit(msg, msg_rect)       
+                
 def display_game_screen():
     global hide
     if not hide:
@@ -80,6 +102,7 @@ screen_height = 720
 screen = pygame.display.set_mode((screen_width,screen_height))
 pygame.display.set_caption("Chimpanzee Game")
 game_font = pygame.font.Font(None, 120)
+start_font = pygame.font.Font(None, 50)
 
 start_button = pygame.Rect(0,0,120,120)
 start_button.center = (120,screen_height-120)
@@ -89,14 +112,14 @@ WHITE = (255,255,255)
 GRAY = (50, 50, 50)
 
 number_button_list = []
-
+level = 1
 display_time = None
 start_ticks = None
 
 start = False
 hide = False
 
-setup(1)
+setup(level)
 
 
 running = True
@@ -107,7 +130,6 @@ while(running):
             running = False
         elif event.type == pygame.MOUSEBUTTONUP:
             click_pos = pygame.mouse.get_pos()   
-            print(click_pos)
     screen.fill(BLACK)
     
     if start:
@@ -119,4 +141,6 @@ while(running):
         
     pygame.display.update()
     
+pygame.time.delay(5000)
+ 
 pygame.quit()
